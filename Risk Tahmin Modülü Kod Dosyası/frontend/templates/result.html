@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>ADHD Analiz Sonucu</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="top" id="top"></div>
+<div class="navibar-veri">
+    <a class="back-button" href="/">Ana Sayfa</a>
+    <a href="/insights" class="back-button">Veri Analizi Modülü</a>
+    <a href="/models" class="back-button">Model Karşılaştırma Modülü</a>
+</div> 
+<br><br>
+<div class="container">
+    <h1>ADHD Risk Analizi Sonuçları</h1>
+
+    <p style="text-align:center; font-size:15px;">
+        Kullanılan Senaryo:
+        <b>
+            {% if scenario == "A" %}
+                Tüm Özellikler (Q1 + Q2 + Yaşam Alışkanlıkları)
+            {% else %}
+                Yalnızca Yaşam Alışkanlıkları
+            {% endif %}
+        </b>
+    </p>
+
+    
+    <div class="section-title" id="modeltablo">
+     <h4>Tüm Modellerin Tahminleri</h4>
+     <table class="result-table" id="modeltablo1">
+        <tr>
+            <th>Model</th>
+            <th>Tahmin Sınıfı</th>
+            <th>Güven Oranı (%)</th>
+        </tr>
+        {% for model, pred in predictions.items() %}
+        <tr {% if model == best_model %} style="background:#46ad46;" {% endif %}>
+            <td>
+                {{ model }}
+                {% if model == best_model %}  {% endif %}
+            </td>
+            <td>{{ pred }}</td>
+            <td>{{ "%.2f"|format(probabilities[model][pred] * 100) }}</td>
+        </tr>
+        {% endfor %}
+     </table>
+     {% for model, pred in predictions.items() %}
+        {% set conf = probabilities[model][pred] * 100 %}
+        <div style="margin-bottom:10px;">
+            <div style="font-size:14px;text-align: center;">
+                <b>{{ model }}</b>
+                {% if model == best_model %}{% endif %}
+                – {{ "%.1f"|format(conf) }}%
+            </div>
+            <div class="bar-container">
+                <div class="bar 
+                    {% if conf < 40 %} bar-red
+                    {% elif conf < 60 %} bar-orange
+                    {% elif conf < 80 %} bar-yellow
+                    {% else %} bar-green
+                    {% endif %}"
+                    style="width: {{ conf }}%;">
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    </div>
+
+    <br>
+
+    <div id="bestmodelsonuc">
+        <div class="risk-box risk-{{ prediction }}">
+        <h2>En İyi Model</h2>
+        <b>{{ best_model }}</b> modeli, bu kullanıcı için en güvenilir tahmini üretmiştir.<br>
+        {% if confidence is defined and confidence is not none %}
+           <small>
+              Bu modelin tahmin güveni:
+              <b>{{ "%.2f"|format(confidence * 100) }}%</b>
+            </small>
+        {% endif %}
+      </div>
+
+    </div>
+    <br>
+
+    <div id="sontahmin">
+      <div class="risk-box risk-{{ prediction }}" style="padding-top: 10px;">
+        <h2>Nihai Tahmin</h2>
+        {% if prediction == 0 %}
+            Normal Risk (Sınıf 0) tespit edildi.
+        {% elif prediction == 1 %}
+            Dikkat Eksikliği Eğilimi (Sınıf 1) tespit edildi.
+        {% elif prediction == 2 %}
+            Hiperaktivite Eğilimi (Sınıf 2) tespit edildi.
+        {% else %}
+            Yüksek ADHD Riski (Sınıf 3) tespit edildi.
+        {% endif %}
+      </div>
+
+    </div>
+    <br>
+
+    <div id="genelskor">
+        <div class="bar-label">
+            <h2>Genel ADHD Risk Skoru</h2>
+            Bu skor, <b>{{ best_model }}</b> modele göre hesaplanmıştır:
+           <br> <b>{{ risk_value }}/100</b>
+        </div><br>
+        <div id="barskor">
+            <div class="bar
+            {% if risk_value is not none %}
+             {% if risk_value < 40 %} bar-green
+             {% elif risk_value < 70 %} bar-yellow
+             {% elif risk_value < 85 %} bar-orange
+             {% else %} bar-red  
+             {% endif %}
+            {% endif %} "
+            style="width: {{ risk_value }}%;">
+        </div>
+
+        </div>
+        
+
+    </div>
+    <br>
+
+    <div id="anketozet">
+        {% if q1_avg is not none and q2_avg is not none %}
+         <h2>Klinik Anket Özeti</h2>
+          <ul class="summary-list">
+            <li><b>Q1 Ortalama (Dikkat):</b> {{ "%.2f"|format(q1_avg) }}</li>
+            <li><b>Q2 Ortalama (Hiperaktivite):</b> {{ "%.2f"|format(q2_avg) }}</li>
+          </ul>
+        {% endif %}
+
+    </div><br>        
+
+    <div id="tavsiyebox">
+        <h2>Kişisel Değerlendirme ve Tavsiyeler</h2>
+       <div class="ictavsiye">
+        {% if prediction == 0 %}
+            ADHD açısından belirgin bir risk görülmemektedir.
+            Mevcut yaşam alışkanlıklarının sürdürülmesi önerilir.
+        {% elif prediction == 1 %}
+            Dikkat eksikliği eğilimi gözlemlenmiştir.
+            Uyku düzeni ve odak gerektiren aktivitelerin planlanması faydalı olabilir.
+        {% elif prediction == 2 %}
+            Hiperaktivite eğilimi tespit edilmiştir.
+            Fiziksel aktiviteler ve yapılandırılmış günlük rutinler destekleyici olacaktır.
+        {% else %}
+            Yüksek ADHD riski tespit edilmiştir.
+            Bir uzman değerlendirmesi alınması ve profesyonel destek düşünülmesi önerilir.
+        {% endif %}
+       </div>
+
+    </div> <br>
+    <div style="">
+        <a class="back-button" href="/analysis" >Yeni Analiz Yap</a>
+        <a href="#top" class="back-button" id="veritop" >Başa Dön</a>
+    </div>
+
+   
+</div>
+
+</body>
+</html>

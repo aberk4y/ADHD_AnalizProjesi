@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Model Karşılaştırma</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+<center>
+  <div class="top" id="top"></div>
+ <div class="navibar-veri">
+    <a class="back-button" href="/">Ana Sayfa</a>
+    <a href="/analysis" class="back-button">Risk Tahmin Modülü</a>
+    <a href="/insights" class="back-button">Veri Analizi Modülü</a>
+ </div> 
+ <br><br>
+
+ <div class="container">
+    <h1>Makine Öğrenmesi Model Karşılaştırma</h1>
+
+    <p class="desc">
+        Bu sayfada ADHD veri seti üzerinde üç farklı makine öğrenmesi algoritması
+        iki senaryo altında karşılaştırılmıştır. Sonuçlar doğruluk, kesinlik,
+        duyarlılık ve F1 skoru metrikleri kullanılarak değerlendirilmiştir.
+    </p>
+
+   
+    <div class="section-title">Senaryo A – Tüm Özellikler (Q1-Q2 + Yaşam Alışkanlıkları)</div>
+    <div class="scenario-box">
+        Anket maddeleri dahil tüm özellikler modele verilmiştir. Anket soruları tanı
+        kriterleriyle yüksek ilişki taşıdığı için modeller yüksek başarı göstermektedir.
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1 Skoru</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in scenario_a %}
+            <tr>
+                <td>{{ row.model }}</td>
+                <td>{{ "%.3f"|format(row.accuracy) }}</td>
+                <td>{{ "%.3f"|format(row.precision) }}</td>
+                <td>{{ "%.3f"|format(row.recall) }}</td>
+                <td>{{ "%.3f"|format(row.f1_score) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Confusion Matrix Görselleri (Senaryo A)</h3>
+    <div class="matrix-container">
+      {% for row in scenario_a %}
+        <div class="matrix-box">
+            <p><b>{{ row.model }}</b></p>
+            <img src="/static/{{ row.conf_matrix_path }}" width="300">
+        </div>
+      {% endfor %}
+    </div>
+
+    <h3>Performans Karşılaştırma Grafikleri – Senaryo A</h3>
+
+    <div class="matrix-container">
+      <div class="matrix-box">
+        <p><b>Accuracy</b></p>
+        <img src="/static/model_charts/Senaryo_A_-_Tüm_Özellikler_accuracy.png" width="350">
+      </div>
+
+      <div class="matrix-box">
+        <p><b>Precision</b></p>
+        <img src="/static/model_charts/Senaryo_A_-_Tüm_Özellikler_precision.png" width="350">
+      </div>
+
+      <div class="matrix-box">
+        <p><b>Recall</b></p>
+        <img src="/static/model_charts/Senaryo_A_-_Tüm_Özellikler_recall.png" width="350">
+      </div>
+
+      <div class="matrix-box">
+        <p><b>F1 Score</b></p>
+        <img src="/static/model_charts/Senaryo_A_-_Tüm_Özellikler_f1_score.png" width="350">
+      </div>
+    </div>
+
+
+    
+
+    <div class="section-title">Senaryo B – Yalnızca Yaşam Alışkanlıkları</div>
+    <div class="scenario-box">
+        Bu senaryoda Q1 ve Q2 anket maddeleri çıkarılmıştır. Sadece uyku, telefon
+        kullanımı, aktivite, öğrenme güçlüğü ve kaygı düzeyi gibi yaşam alışkanlıkları
+        ile tahmin yapılmıştır.
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1 Skoru</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in scenario_b %}
+            <tr>
+                <td>{{ row.model }}</td>
+                <td>{{ "%.3f"|format(row.accuracy) }}</td>
+                <td>{{ "%.3f"|format(row.precision) }}</td>
+                <td>{{ "%.3f"|format(row.recall) }}</td>
+                <td>{{ "%.3f"|format(row.f1_score) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Confusion Matrix Görselleri (Senaryo B)</h3>
+    <div class="matrix-container">
+     {% for row in scenario_b %}
+        <div class="matrix-box">
+            <p><b>{{ row.model }}</b></p>
+            <img src="/static/{{ row.conf_matrix_path }}" alt="{{ row.model }} Matrix" width="350">
+        </div>
+     {% endfor %}
+    </div>
+
+    <h3>Performans Karşılaştırma Grafikleri – Senaryo B</h3>
+
+    <div class="matrix-container">
+      <div class="matrix-box">
+        <p><b>Accuracy</b></p>
+        <img src="/static/model_charts/Senaryo_B_-_Yasam_Aliskanliklari_accuracy.png" width="350">
+      </div>
+
+      <div class="matrix-box">
+        <p><b>Precision</b></p>
+        <img src="/static/model_charts/Senaryo_B_-_Yasam_Aliskanliklari_precision.png" width="350">
+      </div>
+
+      <div class="matrix-box">
+        <p><b>Recall</b></p>
+        <img src="/static/model_charts/Senaryo_B_-_Yasam_Aliskanliklari_recall.png" width="350">
+      </div>
+
+      <div class="matrix-box">
+        <p><b>F1 Score</b></p>
+        <img src="/static/model_charts/Senaryo_B_-_Yasam_Aliskanliklari_f1_score.png" width="350">
+      </div>
+    </div>
+
+
+    <div class="section-title">Genel Değerlendirme</div>
+    <div class="scenario-box">
+        <p>
+            <b>Senaryo A:</b> Anket soruları dahil edildiğinde modeller yüksek doğruluk göstermektedir.
+            Bu, anket maddelerinin tanı ile güçlü ilişkiye sahip olduğunu göstermektedir.
+        </p>
+
+        <p>
+            <b>Senaryo B:</b> Yaşam alışkanlıklarına dayalı tahmin daha zordur, bu nedenle skorlar düşüktür.
+            Ancak bu senaryo erken uyarı sistemi veya risk taraması için değerlidir.
+        </p>
+    </div>
+
+    <a href="/" class="back-button">Ana Sayfaya Dön</a>
+    
+
+ </div>
+ 
+</center>
+
+
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>ADHD Risk Tahmin Modülü</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <script>
+        function toggleQuestions() {
+            const box = document.getElementById("q-section");
+            box.style.display = document.getElementById("use_questions").checked ? "block" : "none";
+        }
+    </script>
+</head>
+<body>
+    
+
+<div class="navibar-veri">
+    <a class="back-button" href="/">Ana Sayfa</a>
+    <a href="/models" class="back-button">Model Karşılaştırma Modülü</a>
+</div> 
+<br>
+
+<div class="container">
+    <h1>ADHD Risk Tahmin Modülü</h1>
+
+    <form method="POST" action="/predict">
+
+        <h2 style="text-align: center;">Temel Bilgiler</h2>
+
+        <div class="form-group">
+            <label>Yaş</label>
+            <input type="number" name="age" required>
+        </div>
+
+        <div class="form-group">
+            <label>Günlük Uyku Süresi (saat)</label>
+            <input type="number" step="0.1" name="sleep_hours" required>
+        </div>
+
+        <div class="form-group">
+            <label>Günlük Telefon Kullanımı (saat)</label>
+            <input type="number" step="0.1" name="phone_hours" required>
+        </div>
+
+        <div class="form-group">
+            <label>Öğrenme Güçlüğü</label>
+            <select name="learning_diff">
+                <option value="0">Yok</option>
+                <option value="1">Var</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Kaygı / Depresyon Seviyesi</label>
+            <select name="anxiety">
+                <option value="0">Yok</option>
+                <option value="1">Hafif</option>
+                <option value="2">Orta</option>
+                <option value="3">Şiddetli</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label> Görev Organizasyon Zorluğu Düzeyininiz Nedir?</label>
+            <select name="org">
+                <option value="0">Yok</option>
+                <option value="1">Hafif</option>
+                <option value="2">Orta</option>
+                <option value="3">Şiddetli</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Günlük Fiziksel Aktivite Süresi (saat)</label>
+            <input type="number" step="0.1" name="daily_activity" required>
+        </div>
+        <div class="form-group">
+            <label>Günlük Yürüyüş / Koşu Süresi (saat)</label>
+            <input type="number" step="0.1" name="walking_hours" required>
+        </div>
+
+        <div class="form-group">
+            <label>Günlük Kahve / Çay Tüketimi (bardak)</label>
+            <input type="number" step="0.1" name="coffee_tea" required>
+        </div>
+
+        <div class="form-group">
+            <label>Eğitim Seviyesi</label>
+            <select name="education">
+                <option value="0">İlköğretim</option>
+                <option value="1">Lise</option>
+                <option value="2">Üniversite</option>
+                <option value="3">Yüksek Lisans / Doktora</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Ailede ADHD Öyküsü</label>
+            <select name="family_history">
+               <option value="0">Yok</option>
+               <option value="1">Var</option>
+            </select>
+        </div>
+
+        <div class="checkbox-box">
+            <label>
+                <input type="checkbox" id="use_questions" name="use_questions" onchange="toggleQuestions()">
+                Dikkat & Hiperaktivite Klinik Sorularını Cevaplamak İstiyorum
+            </label>
+        </div>
+
+        <div id="q-section" class="question-box">
+
+            <p class="scale-text">
+                <b>Cevap Ölçeği:</b> 0 = Hiç | 1 = Nadiren | 2 = Sıklıkla | 3 = Çok Sık
+            </p>
+
+            <h3>Q1 – Dikkat Eksikliği</h3>
+            {% for i, q in [
+                (1,"İşinizde veya başka etkinliklerde ayrıntılara yeterince dikkat edemediğiniz ya da dikkatsiz hatalar yaptığınız olur mu?"),
+                (2,"Görevler üzerinde dikkatinizi uzun süre sürdürmekte zorlandığınız olur mu?"),
+                (3,"Size doğrudan konuşulurken dinlemiyormuş gibi göründüğünüz olur mu?"),
+                (4,"Talimatları takip etmekte zorlandığınız ve başladığınız işleri tamamlayamadığınız olur mu?"),
+                (5,"Görevleri ve aktiviteleri organize etmekte zorlandığınız olur mu?"),
+                (6,"Sürekli zihinsel çaba gerektiren işleri yapmaktan kaçındığınız, sevmediğiniz veya isteksiz olduğunuz olur mu?"),
+                (7,"Görevler veya aktiviteler için gerekli olan eşyaları (anahtar, cüzdan, evrak vb.) sık sık kaybettiğiniz olur mu?"),
+                (8,"Dış uyaranlar (sesler, hareketler, çevredeki insanlar) nedeniyle dikkatinizin kolayca dağıldığı olur mu?"),
+                (9,"Günlük aktivitelerde unutkanlık yaşadığınız olur mu?")
+            ] %}
+            <div class="question">
+                <p><b>{{ q }}</b></p>
+                {% for v in range(4) %}
+                    <label class="radio"><input type="radio" name="Q1_{{ i }}" value="{{ v }}"> {{ v }}</label>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <p class="scale-text">
+                <b>Cevap Ölçeği:</b> 0 = Hiç | 1 = Nadiren | 2 = Sıklıkla | 3 = Çok Sık
+            </p>
+
+            <h3>Q2 – Hiperaktivite / Dürtüsellik</h3>
+            {% for i, q in [
+                (1,"Ellerinizle veya ayaklarınızla sürekli oynadığınız ya da oturduğunuz yerde kıpırdandığınız olur mu?"),
+                (2,"Oturmanız beklenen durumlarda yerinizden kalktığınız olur mu?"),
+                (3,"Kendinizi huzursuz hissettiğinizde aşırı hareketli olduğunuz olur mu?"),
+                (4,"Sessiz ve sakin bir şekilde boş zaman etkinlikleri yapmakta zorlandığınız olur mu?"),
+                (5,"Sürekli hareket halinde olduğunuz ya da sanki bir motor tarafından kontrol ediliyormuş gibi davrandığınız olur mu?"),
+                (6,"Aşırı konuştuğunuz olur mu?"),
+                (7,"Sorular tamamlanmadan cevap verdiğiniz olur mu?"),
+                (8,"Sıranızı beklemekte zorlandığınız olur mu?"),
+                (9,"Başkalarının konuşmalarını veya yaptıkları işleri sık sık böldüğünüz ya da araya girdiğiniz olur mu?")
+            ] %}
+            <div class="question">
+                <p><b>{{ q }}</b></p>
+                {% for v in range(4) %}
+                    <label class="radio"><input type="radio" name="Q2_{{ i }}" value="{{ v }}"> {{ v }}</label>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="primary-btn">ADHD Riskini Hesapla</button>
+
+    </form>
+
+</div>
+
+</div>
+</body>
+</html>

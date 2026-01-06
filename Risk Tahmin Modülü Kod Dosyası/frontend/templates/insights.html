@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Veri Keşfi ve Ön Analiz</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+<div class="top" id="top"></div>
+<div class="navibar-veri">
+    <a class="back-button" href="/">Ana Sayfa</a>
+    <a href="/analysis" class="back-button">Risk Tahmin Modülü</a>
+    <a href="/models" class="back-button">Model Karşılaştırma Modülü</a>
+</div> 
+<br><br>
+<div class="container">
+    <h1>Veri Analizi ve Grafik Modülü</h1>
+
+
+    <p style="text-align: center; font-size:16px;font-weight: bold;">
+        Bu modülde ADHD veri setinin genel yapısı, eksik değer durumu, sınıf dağılımı ve korelasyon matrisi
+        gibi temel analizler ve grafikler sunulmaktadır.
+    </p>
+    
+    
+
+  
+   <div id="scatter_plot">
+     <h2>Ön İşleme Seçenekleri</h2>
+
+     <form method="GET" action="/insights" style="display: flex;">
+        <label><b>Eksik Veri Stratejisi:</b></label>
+        <select name="missing_strategy">
+            <option value="mean" {% if selected_strategy=="mean" %}selected{% endif %}>Mean (Ortalama ile doldur)</option>
+            <option value="median" {% if selected_strategy=="median" %}selected{% endif %}>Median (Medyan ile doldur)</option>
+            <option value="drop" {% if selected_strategy=="drop" %}selected{% endif %}>Drop (Eksik satırları sil)</option>
+        </select>
+        
+        <label><b>Ölçekleme:</b></label>
+        <select name="scaling">
+            <option value="none" {% if selected_scaling=="none" %}selected{% endif %}>Yok</option>
+            <option value="standard" {% if selected_scaling=="standard" %}selected{% endif %}>StandardScaler</option>
+            <option value="minmax" {% if selected_scaling=="minmax" %}selected{% endif %}>MinMaxScaler</option>
+        </select>
+
+        <button type="submit">Uygula</button>
+     </form>
+
+
+
+
+
+      <h2> Scatter Plot</h2>
+      <p>Bir X ve Y sütunu seçerek sınıflara göre dağılımı görebilirsiniz.</p>
+
+      <form method="POST" action="/insights?missing_strategy={{ selected_strategy }}&scaling={{ selected_scaling }}">
+        <label><b>X Sütunu:</b></label>
+        <select name="x_col" required>
+            <option value="">Seçiniz</option>
+            {% for col in numeric_columns %}
+                <option value="{{ col }}" {% if selected_x==col %}selected{% endif %}>{{ col }}</option>
+            {% endfor %}
+        </select>
+
+        &nbsp;&nbsp;&nbsp;
+
+        <label><b>Y Sütunu:</b></label>
+        <select name="y_col" required>
+            <option value="">Seçiniz</option>
+            {% for col in numeric_columns %}
+                <option value="{{ col }}" {% if selected_y==col %}selected{% endif %}>{{ col }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Scatter Plot Oluştur</button>
+      </form>
+
+     {% if scatter_plot %}
+        <h3>Oluşturulan Grafik: {{ selected_x }} vs {{ selected_y }}</h3>
+        <img src="/static/{{ scatter_plot }}" alt="Scatter Plot" style="max-width: 100%; border:1px solid #ddd;">
+     {% else %}
+        <p style="color:#666;">Henüz scatter plot oluşturulmadı.</p>
+     {% endif %}
+    </div>  
+
+    <br>
+
+  <div id="veriler">
+    <div id="veri_sutun" style="align-items: center;text-align: center;">
+     <h2> Veri Sütunları</h2>
+     <ul>
+        {% for col in columns %}
+            <li>{{ col }}</li>
+        {% endfor %}
+     </ul>
+     <p>Sayısal Sütunlar: <b>{{ numeric_columns|length }}</b> adet</p>
+     <p>Kategorik Sütunlar: <b>2</b> adet</p>
+    </div>
+    <br>
+
+    <div id="eksik_deger">
+      <h2> Eksik Değer Analizi</h2>
+      <table class="result-table" style="justify-content: center;margin: 0 auto;padding: 10px;">
+          <tr><th>Sütun</th><th>Eksik Değer Sayısı</th></tr>
+          {% for col, val in missing.items() %}
+            <tr>
+              <td>{{ col }}</td>
+              <td>{{ val }}</td>
+            </tr>
+           {% endfor %}
+        </table>
+    </div>
+
+  </div>
+
+   <br>
+
+    <div id="sinif_dagilim" >
+      <div id="sinif_tablo">
+        <h2> Sınıf Dağılımı</h2>
+        <table class="result-table" style="justify-content: center;margin: 0 auto; ">
+          <tr><th>Sınıf</th><th>Adet</th></tr>
+          {% for cls, val in class_dist.items() %}
+          <tr>
+              <td>{{ cls }}</td>
+              <td>{{ val }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div id="sinif_grafik">
+        <h2 style="margin-top: 50px;"> Sınıf Dağılım Grafiği</h2>
+        {% if class_plot %}
+         <img src="/static/{{ class_plot }}" alt="Sınıf Dağılımı" style="max-width: 100%; border:1px solid #ddd;">
+        {% endif %}
+      </div>
+    </div>
+    <br>
+    <div id="korelasyon_matrisi">
+      <h2> Korelasyon Matrisi (Heatmap)</h2>
+      {% if heatmap_plot %}
+        <img src="/static/{{ heatmap_plot }}" alt="Korelasyon Heatmap" style="max-width: 100%; border:1px solid #ddd;">
+      {% endif %}
+      
+
+    </div>
+    <br>
+   
+    <a href="#top" class="back-button" id="veritop" >Başa Dön</a>
+
+
+
+    
+</div>
+
+</body>
+</html>
